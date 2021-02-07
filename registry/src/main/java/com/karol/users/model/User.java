@@ -1,26 +1,37 @@
 package com.karol.users.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.NoArgsConstructor;
 
-import lombok.RequiredArgsConstructor;
-
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import java.util.Date;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Past;
+import java.time.LocalDate;
 import java.util.Objects;
 
 @Entity
-@RequiredArgsConstructor
+@NoArgsConstructor
 public class User {
 
-    private @Id
+    @Id
     @GeneratedValue
-    Long id;
-    private final String username;
-    private final Date dateOfBirth;
-    private final String country;
+    private Long id;
 
-    private final Boolean testUser;
+    @NotEmpty(message = "Username must not be empty")
+    private String username;
+
+    @Past
+    @JsonFormat(pattern = "dd/MM/yyyy")
+    private LocalDate dateOfBirth;
+
+    @NotEmpty(message = "Country must not be empty")
+    private String country;
+
+    @Column(columnDefinition = "boolean default false")
+    private Boolean testUser = false;
 
     public Long getId() {
         return id;
@@ -30,7 +41,7 @@ public class User {
         return username;
     }
 
-    public Date getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
@@ -40,6 +51,26 @@ public class User {
 
     public Boolean getTestUser() {
         return testUser;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public void setTestUser(Boolean testUser) {
+        this.testUser = testUser;
     }
 
     @Override
