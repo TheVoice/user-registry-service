@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,13 +23,19 @@ public class UserController {
 
     @GetMapping("/user/{id}")
     public User getOne(@PathVariable Long id) {
+        long startTime = System.nanoTime();
 
-        return userRepository.findById(id)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("User with id %d not found", id)));
+
+        log.info(String.format("Returning user with id %d: %s (processing time: %d ms)", id, user, TimeUnit.MILLISECONDS.convert(System.nanoTime() - startTime, TimeUnit.NANOSECONDS)));
+        return user;
     }
 
     @PostMapping("/user")
     public ResponseEntity addUser(@Valid @RequestBody User user) {
+        long startTime = System.nanoTime();
+
         if (!ALLOWED_COUNTRY.equals(user.getCountry())) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
@@ -40,6 +47,8 @@ public class UserController {
                     .body("Creation of users younger than 18 not allowed");
         }
         User createdUser = userRepository.save(user);
+
+        log.info(String.format("Saved user %s (processing time: %d ms)", createdUser, TimeUnit.MILLISECONDS.convert(System.nanoTime() - startTime, TimeUnit.NANOSECONDS)));
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(createdUser);
